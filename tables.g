@@ -12,7 +12,7 @@ BestGroupCodes := function(G, F)
     
     mats := List(GeneratorsOfGroup(G), 
                 g -> List(BasisVectors(B), 
-                         b -> Coefficients(B, g*b)));
+                         b -> Coefficients(B, b*g)));
     M := GModuleByMats(mats, F);
     bases := MTX.BasesSubmodules(M);
     
