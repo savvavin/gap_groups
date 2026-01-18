@@ -1,8 +1,7 @@
 LoadPackage("wedderga");
 LoadPackage("guava");
-LoadPackage("meataxe");
 
-BestGroupCodes := function(G, F)
+FindBestGroupCodes := function(G, F)
     local R, B, n, mats, M, bases, ideals, i, results, k, gen_mat, code, d, wd,
           dim, best_for_dim, dim_codes, r, idx, output, filename, max_d, best_codes, list_max_d;
     
@@ -12,7 +11,7 @@ BestGroupCodes := function(G, F)
     
     mats := List(GeneratorsOfGroup(G), 
                 g -> List(BasisVectors(B), 
-                         b -> Coefficients(B, b*g)));
+                         b -> Coefficients(B, g*b)));
     M := GModuleByMats(mats, F);
     bases := MTX.BasesSubmodules(M);
     
@@ -21,7 +20,7 @@ BestGroupCodes := function(G, F)
         Add(ideals, LeftIdeal(R, 
             List(bases[i], v -> LinearCombination(BasisVectors(B), v))));
     od;
-
+    
     results := [];
     for i in [1..Length(ideals)] do
         k := Dimension(ideals[i]);
@@ -30,22 +29,32 @@ BestGroupCodes := function(G, F)
                            b -> Coefficients(B, b));
             code := GeneratorMatCode(gen_mat, F);
             d := MinimumDistance(code);
-            Add(results, [k, d]);
+            wd := WeightDistribution(code);
+            Add(results, [k, d, wd, i]);
         fi;
     od;
     
-    list_max_d:=[];
-    for dim in [1..n] do
+    #Print("Group: ", StructureDescription(G), 
+             #" |G|=", Size(G), " Field: GF(", Size(F), ") n=", n, "\n");
+    #Print("Ideals: ", Length(ideals), "\n\n");
+    list_max_d := [];
+    for i in [1..Size(G)] do
+        Add(list_max_d, -100);
+    od;
+    for dim in Set(List(results, r -> r[1])) do
         dim_codes := Filtered(results, r -> r[1] = dim);
-        
-        if Length(dim_codes) > 0 then
-            max_d := Maximum(List(dim_codes, r -> r[2]));
-            Add(list_max_d, max_d);
-        else
-            Add(list_max_d, -100);
+        max_d := Maximum(List(dim_codes, r -> r[2]));
+        best_codes := Filtered(dim_codes, r -> r[2] = max_d);
+        if max_d >= 0 then 
+            list_max_d[dim]:=max_d;
         fi;
+        #Print("k=", dim, ": d_max=", max_d, 
+         #       " (", Length(best_codes), " codes)\n");
+        for r in best_codes do
+            #Print("  Ideal ", r[4], ": WD=", r[3], "\n");
+        od;
     od;
-    
+
     return list_max_d;
 end;
 
@@ -161,7 +170,7 @@ FindBestGroupInCategory := function(groups, ORD, NElemsF)
     best_list := LISTBESTD[NElemsF][ORD];
     
     for G in groups do
-        list_max_d := BestGroupCodes(G, GF(NElemsF));
+        list_max_d := FindBestGroupCodes(G, GF(NElemsF));
         score := 0;
         
         for k in [1..Minimum(Length(list_max_d), Length(best_list))] do
@@ -208,7 +217,7 @@ MakeTableSorted := function(ORD, NElemsF)
     # ВЫЧИСЛЯЕМ MAXA - максимальные значения по столбцам для абелевых групп
     max_abelian_values := List([1..ORD], i -> -100);
     for G in abelian_groups do
-        list_max_d := BestGroupCodes(G, GF(NElemsF));
+        list_max_d := FindBestGroupCodes(G, GF(NElemsF));
         for k in [1..ORD] do
             if list_max_d[k] > max_abelian_values[k] then
                 max_abelian_values[k] := list_max_d[k];
@@ -219,7 +228,7 @@ MakeTableSorted := function(ORD, NElemsF)
     # ВЫЧИСЛЯЕМ MAXN - максимальные значения по столбцам для неабелевых групп
     max_nonabelian_values := List([1..ORD], i -> -100);
     for G in nonabelian_groups do
-        list_max_d := BestGroupCodes(G, GF(NElemsF));
+        list_max_d := FindBestGroupCodes(G, GF(NElemsF));
         for k in [1..ORD] do
             if list_max_d[k] > max_nonabelian_values[k] then
                 max_nonabelian_values[k] := list_max_d[k];
@@ -350,7 +359,7 @@ MakeTableSorted := function(ORD, NElemsF)
         
         for G in abelian_groups do
             F := GF(NElemsF);
-            list_max_d := BestGroupCodes(G, F);
+            list_max_d := FindBestGroupCodes(G, F);
             group_name := StructureDescription(G);
             
             AppendTo(output, group_name);
@@ -401,7 +410,7 @@ MakeTableSorted := function(ORD, NElemsF)
         
         for G in nonabelian_groups do
             F := GF(NElemsF);
-            list_max_d := BestGroupCodes(G, F);
+            list_max_d := FindBestGroupCodes(G, F);
             group_name := StructureDescription(G);
             
             AppendTo(output, group_name);
@@ -440,4 +449,13 @@ MakeTableSorted := function(ORD, NElemsF)
         od;
         AppendTo(output, "\n");
     fi;
+end;
+
+CallTables := function()
+    local ord, nelem;
+    for ord in [13..16] do
+        for nelem in [2..5] do
+            MakeTableSorted(ord, nelem);
+        od;
+    od;
 end;
