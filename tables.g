@@ -185,7 +185,10 @@ MakeTableSorted := function(ORD, NElemsF)
           best_abelian_data, best_nonabelian_data, best_abelian_group, best_abelian_score,
           best_nonabelian_group, best_nonabelian_score, cell_width,
           max_abelian_values, max_nonabelian_values, j,
-          maxa_cnt, maxn_cnt;
+          maxa_cnt, maxn_cnt, filename, output;
+
+    filename:=Concatenation("D:/MATH/sciencework2026/codes/res_tables/Order", String(ORD), "FieldF(", String(NElemsF), ").txt");
+    output:=OutputTextFile(filename, false);
     
     all_groups := AllSmallGroups(ORD);
     sorted_lists := SortGroupsSimple(all_groups);
@@ -248,37 +251,37 @@ MakeTableSorted := function(ORD, NElemsF)
     # Увеличиваем ширину ячейки для двузначных чисел
     cell_width := 5;  # Было 3, теперь 5
     
-    Print(" Order: ", ORD, "  |  Field: GF(", NElemsF, ")\n\n");
+    AppendTo(output, " Order: ", ORD, "  |  Field: GF(", NElemsF, ")\n\n");
     
     # Заголовки столбцов
-    Print("K");
-    for i in [1..max_name_len-1] do Print(" "); od;
-    Print(" ");
+    AppendTo(output, "K");
+    for i in [1..max_name_len-1] do AppendTo(output, " "); od;
+    AppendTo(output, " ");
     for k in [1..ORD] do
-        Print(String(k, cell_width));
+        AppendTo(output, String(k, cell_width));
     od;
-    Print("\n");
+    AppendTo(output, "\n");
     
     # Разделительная линия
-    for i in [1..max_name_len+1] do Print("-"); od;
+    for i in [1..max_name_len+1] do AppendTo(output, "-"); od;
     for k in [1..ORD] do 
-        for j in [1..cell_width] do Print("-"); od;
+        for j in [1..cell_width] do AppendTo(output, "-"); od;
     od;
-    Print("\n");
+    AppendTo(output, "\n");
     
     # Строка Best
-    Print("Best");
-    for i in [1..max_name_len-4] do Print(" "); od;
-    Print(" ");
+    AppendTo(output, "Best");
+    for i in [1..max_name_len-4] do AppendTo(output, " "); od;
+    AppendTo(output, " ");
     for k in [1..Length(best_list)] do
-        Print(String(best_list[k], cell_width));
+        AppendTo(output, String(best_list[k], cell_width));
     od;
-    Print("\n");
+    AppendTo(output, "\n");
     
     # Строка MAXA - максимумы по столбцам для абелевых групп
-    Print("MAXA");
-    for i in [1..max_name_len-4] do Print(" "); od;
-    Print(" ");
+    AppendTo(output, "MAXA");
+    for i in [1..max_name_len-4] do AppendTo(output, " "); od;
+    AppendTo(output, " ");
     for k in [1..ORD] do
         if max_abelian_values[k] = -100 then
             num_str := "-";
@@ -289,23 +292,23 @@ MakeTableSorted := function(ORD, NElemsF)
                 num_str := String(max_abelian_values[k]);
             fi;
         fi;
-        Print(String(num_str, cell_width));
+        AppendTo(output, String(num_str, cell_width));
     od;
     # Выводим счетчик совпадений с Best для MAXA
     if maxa_cnt > 0 then
-        Print("  (", maxa_cnt, "/", ORD);
+        AppendTo(output, "  (", maxa_cnt, "/", ORD);
         if maxa_cnt = ORD then
-            Print("★)");
+            AppendTo(output, "★)");
         else
-            Print(")");
+            AppendTo(output, ")");
         fi;
     fi;
-    Print("\n");
+    AppendTo(output, "\n");
     
     # Строка MAXN - максимумы по столбцам для неабелевых групп
-    Print("MAXN");
-    for i in [1..max_name_len-4] do Print(" "); od;
-    Print(" ");
+    AppendTo(output, "MAXN");
+    for i in [1..max_name_len-4] do AppendTo(output, " "); od;
+    AppendTo(output, " ");
     for k in [1..ORD] do
         if max_nonabelian_values[k] = -100 then
             num_str := "-";
@@ -316,45 +319,45 @@ MakeTableSorted := function(ORD, NElemsF)
                 num_str := String(max_nonabelian_values[k]);
             fi;
         fi;
-        Print(String(num_str, cell_width));
+        AppendTo(output, String(num_str, cell_width));
     od;
     # Выводим счетчик совпадений с Best для MAXN
     if maxn_cnt > 0 then
-        Print("  (", maxn_cnt, "/", ORD);
+        AppendTo(output, "  (", maxn_cnt, "/", ORD);
         if maxn_cnt = ORD then
-            Print("★)");
+            AppendTo(output, "★)");
         else
-            Print(")");
+            AppendTo(output, ")");
         fi;
     fi;
-    Print("\n");
+    AppendTo(output, "\n");
     
     # Двойная разделительная линия
-    for i in [1..max_name_len+1] do Print("="); od;
+    for i in [1..max_name_len+1] do AppendTo(output, "="); od;
     for k in [1..ORD] do 
-        for j in [1..cell_width] do Print("="); od;
+        for j in [1..cell_width] do AppendTo(output, "="); od;
     od;
-    Print("\n\n");
+    AppendTo(output, "\n\n");
     
     # Секция абелевых групп
     if Length(abelian_groups) > 0 then
-        Print("ABELIAN GROUPS:\n");
-        for i in [1..max_name_len+1] do Print("-"); od;
+        AppendTo(output, "ABELIAN GROUPS:\n");
+        for i in [1..max_name_len+1] do AppendTo(output, "-"); od;
         for k in [1..ORD] do 
-            for j in [1..cell_width] do Print("-"); od;
+            for j in [1..cell_width] do AppendTo(output, "-"); od;
         od;
-        Print("\n");
+        AppendTo(output, "\n");
         
         for G in abelian_groups do
             F := GF(NElemsF);
             list_max_d := BestGroupCodes(G, F);
             group_name := StructureDescription(G);
             
-            Print(group_name);
+            AppendTo(output, group_name);
             for i in [1..max_name_len - Length(group_name)] do
-                Print(" ");
+                AppendTo(output, " ");
             od;
-            Print(" ");
+            AppendTo(output, " ");
             
             cnt := 0;
             for k in [1..Length(list_max_d)] do
@@ -368,44 +371,44 @@ MakeTableSorted := function(ORD, NElemsF)
                 else
                     num_str := "-";
                 fi;
-                Print(String(num_str, cell_width));
+                AppendTo(output, String(num_str, cell_width));
             od;
             
             # Статистика оптимальности
             if cnt > 0 then
-                Print("  (", cnt, "/", ORD);
+                AppendTo(output, "  (", cnt, "/", ORD);
                 if cnt = ORD then
-                    Print("★)");
+                    AppendTo(output, "★)");
                 elif cnt = best_abelian_score then
-                    Print("*)");
+                    AppendTo(output, "*)");
                 else
-                    Print(")");
+                    AppendTo(output, ")");
                 fi;
             fi;
-            Print("\n");
+            AppendTo(output, "\n");
         od;
-        Print("\n");
+        AppendTo(output, "\n");
     fi;
     
     # Секция неабелевых групп
     if Length(nonabelian_groups) > 0 then
-        Print("NON-ABELIAN GROUPS:\n");
-        for i in [1..max_name_len+1] do Print("-"); od;
+        AppendTo(output, "NON-ABELIAN GROUPS:\n");
+        for i in [1..max_name_len+1] do AppendTo(output, "-"); od;
         for k in [1..ORD] do 
-            for j in [1..cell_width] do Print("-"); od;
+            for j in [1..cell_width] do AppendTo(output, "-"); od;
         od;
-        Print("\n");
+        AppendTo(output, "\n");
         
         for G in nonabelian_groups do
             F := GF(NElemsF);
             list_max_d := BestGroupCodes(G, F);
             group_name := StructureDescription(G);
             
-            Print(group_name);
+            AppendTo(output, group_name);
             for i in [1..max_name_len - Length(group_name)] do
-                Print(" ");
+                AppendTo(output, " ");
             od;
-            Print(" ");
+            AppendTo(output, " ");
             
             cnt := 0;
             for k in [1..Length(list_max_d)] do
@@ -419,22 +422,22 @@ MakeTableSorted := function(ORD, NElemsF)
                 else
                     num_str := "-";
                 fi;
-                Print(String(num_str, cell_width));
+                AppendTo(output, String(num_str, cell_width));
             od;
             
             # Статистика оптимальности
             if cnt > 0 then
-                Print("  (", cnt, "/", ORD);
+                AppendTo(output, "  (", cnt, "/", ORD);
                 if cnt = ORD then
-                    Print("★)");
+                    AppendTo(output, "★)");
                 elif cnt = best_nonabelian_score then
-                    Print("*)");
+                    AppendTo(output, "*)");
                 else
-                    Print(")");
+                    AppendTo(output, ")");
                 fi;
             fi;
-            Print("\n");
+            AppendTo(output, "\n");
         od;
-        Print("\n");
+        AppendTo(output, "\n");
     fi;
 end;
