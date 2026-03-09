@@ -137,7 +137,12 @@ def collect_and_save(n, q, num_groups):
                 continue
             name = lines[0].strip()
             abelian = (lines[1].strip() == "true")
-            dists_str = lines[2].strip().strip('[]')
+            # Объединяем все оставшиеся строки (список может быть многострочным)
+            dists_str = ''.join(lines[2:]).strip()
+            # Удаляем обрамляющие скобки
+            if dists_str.startswith('[') and dists_str.endswith(']'):
+                dists_str = dists_str[1:-1]
+            # Разбираем числа
             dists = [int(x) for x in dists_str.split(',') if x.strip()] if dists_str else []
             data.append({"name": name, "abelian": abelian, "dists": dists})
         os.remove(temp_file)
@@ -230,4 +235,5 @@ def main():
     print("\nAll tasks completed.")
 
 if __name__ == "__main__":
+
     main()
